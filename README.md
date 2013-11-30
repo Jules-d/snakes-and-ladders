@@ -3,16 +3,19 @@
 A simple Clojure implementation of Snakes and Ladders.
 
 ## Usage
-# Naturally, you'll need Clojure and Leiningen, and then should be as simple as:
-cd snakes-and-ladders
-lein run
-# It doesn't quit when you close the window right now, you'll have to ctrl-c.
+Naturally, you'll need Clojure and Leiningen, and then should be as simple as:
 
-# It's still largely intended to be run interactively from the repl at the moment.
-# core.clj has simle control expressions at the bottom.
+    cd snakes-and-ladders
+    lein run
 
-# Then mouse-clicks roll the (invisible) die and automatically move the pieces.
-# Currently, the only way to start a new game is to restart
+It doesn't quit when you close the window right now, you'll have to ctrl-c.
+
+It's still largely intended to be run interactively from the repl.
+core.clj has simle control expressions at the bottom.
+
+Then mouse-clicks roll the (invisible) die and automatically move the pieces.
+
+Currently, the only way to start a new game is to restart
 
 ## License
 
