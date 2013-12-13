@@ -47,7 +47,7 @@
        current-roll))
 
 (defn next-state [state]
-;;  (println "millis " (quil/millis))
+  ;;  (println "millis " (quil/millis))
   (let[positions (state :positions)
        current-player-id (state :player-turn)
        turn-counter (state :turn-counter)
@@ -57,30 +57,42 @@
        current-roll (roll-die)
        finish (board :finish)
        time (quil/millis)
-       old-screen-position (drawing/position-to-screen-x-y current-player-position)
+       old-screen-x-y (drawing/position-to-screen-x-y current-player-position)
        rolled-position (+ current-player-position current-roll)
        new-position (min finish (shifted-position rolled-position))
        new-screen-x-y (drawing/position-to-screen-x-y new-position)
+       rolled-screen-x-y (drawing/position-to-screen-x-y rolled-position)
+       ;; "shifted" means that the player went up/down a ladder/snake
+       is-shifted (not (= rolled-position new-position))
+       duration (if is-shifted 375 750)
        new-animation (drawing/generate-composable-dynamic-position
-                              {:start-time time
-                               :end-time (+ time 1250)
-                               :origin old-screen-position
-                               :destination new-screen-x-y})
+                      {:start-time time
+                       :end-time (+ time duration)
+                       :origin old-screen-x-y
+                       :destination rolled-screen-x-y})
+       shift-animation (drawing/generate-composable-dynamic-position
+                        {:start-time (+ time duration)
+                         :end-time (+ time (* 2 duration))
+                         :origin rolled-screen-x-y
+                         :destination new-screen-x-y})
+       final-animation (if is-shifted
+                         (comp new-animation shift-animation)
+                         new-animation)
        new-positions (assoc positions current-player-id new-position)
        new-move-times (assoc move-times current-player-id time)
-       new-animations (assoc animations current-player-id new-animation)
-       ]
+       new-animations (assoc animations current-player-id final-animation)]
     (if (= new-position finish)
       (do (println "Winner player" (inc current-player-id) "!!!")
-          [new-positions current-player-id turn-counter "Winner!"])
+          (assoc state :positions new-positions
+                 :move-times new-move-times))
       (do ;;(println new-move-times)
-          {:positions new-positions
-           :previous-positions positions
-           :player-turn (rem (inc current-player-id) (count positions))
-           :turn-counter (inc turn-counter)
-           :move-times new-move-times
-           :animations new-animations
-           }))))
+        {:positions new-positions
+         :previous-positions positions
+         :player-turn (rem (inc current-player-id) (count positions))
+         :turn-counter (inc turn-counter)
+         :move-times new-move-times
+         :animations new-animations
+         }))))
 
 (defn take-turn []
   (swap! state-atom next-state)

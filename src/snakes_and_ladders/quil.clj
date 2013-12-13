@@ -240,7 +240,28 @@
       )))
 
 (defn draw-players-dynamic [game-state]
-  nil)
+  (let [player-positions (:positions game-state)
+        animations (:animations game-state)
+        time (quil.core/millis)]
+    (dorun (for [i (range (count player-positions))]
+             (let [player i
+                   position (player-positions i)
+                   animation (animations i)
+                   [x* y*] (position-to-screen-x-y position)
+                   [time2 [x y]] (animation [time [x* y*]])]
+               (do
+                 (apply fill (player-token-color i))
+                 (ellipse x  y token-size token-size))))))
+  )
+
+(comment
+(defn draw-player [player player-positions]
+  (let [[x y] ( position-to-screen-x-y (player-positions player))]
+    (do
+      (apply fill (player-token-color player))
+      (apply ellipse (concat [x y] [token-size token-size])))))
+  )
+
 
 (defn draw [game-state]
   (image @img 0 0)
@@ -254,5 +275,6 @@
     (dorun (for [i (range (count player-positions))]
              (do
                (apply fill (player-token-color i))
-               (draw-player i player-positions)))))
-  (draw-animated-piece))
+               (comment (draw-player i player-positions))))))
+  (draw-animated-piece)
+  (draw-players-dynamic game-state))
