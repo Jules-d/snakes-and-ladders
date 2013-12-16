@@ -58,8 +58,8 @@
        finish (board :finish)
        time (quil/millis)
        old-screen-x-y (drawing/position-to-screen-x-y current-player-position)
-       rolled-position (+ current-player-position current-roll)
-       new-position (min finish (shifted-position rolled-position))
+       rolled-position (min finish (+ current-player-position current-roll))
+       new-position (shifted-position rolled-position)
        new-screen-x-y (drawing/position-to-screen-x-y new-position)
        rolled-screen-x-y (drawing/position-to-screen-x-y rolled-position)
        ;; "shifted" means that the player went up/down a ladder/snake
@@ -84,7 +84,8 @@
     (if (= new-position finish)
       (do (println "Winner player" (inc current-player-id) "!!!")
           (assoc state :positions new-positions
-                 :move-times new-move-times))
+                 :move-times new-move-times
+                 :animations new-animations))
       (do ;;(println new-move-times)
         {:positions new-positions
          :previous-positions positions
