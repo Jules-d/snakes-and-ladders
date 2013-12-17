@@ -64,7 +64,7 @@
                             61 83
                             69 75
                             71 96
-                            101 113
+                            101 115
                             106 110}})
 
 (def board cats-board-details)
