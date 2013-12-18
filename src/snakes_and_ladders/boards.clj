@@ -67,9 +67,6 @@
                             101 115
                             106 110}})
 
-(def board cats-board-details)
-;;(def board national-archive-1901)
-
 (def GJHayter-Board
   {:snakes-and-ladders-map { ;; Snakes
                             21 3
@@ -94,3 +91,56 @@
                             82 98
                             85 95
                             88 92}})
+
+;; Snakes and Ladders from the end of
+;; Captain Flinn and the Pirate Dinosaurs - Missing Treasure
+;; This is copywrighted work, so I'm not including the image.
+(def captain-flinn-board-details
+  {:filename  "resources/CaptainFlinn-890x1080.jpeg"
+   :size [890 1080]
+   :middle-of-corner-squares [81 265 801 988]
+   :columns 10
+   :rows 10
+   :finish 100
+
+   :width 12
+   :height 10
+   :top 44
+   :bottom 686
+   :left 49
+   :right 972
+
+   :snakes-and-ladders-map {;; "Snakes"
+                            72 5
+                            52 9
+                            45 17
+                            59 19
+                            82 23
+                            98 35
+                            64 38
+                            91 53
+                            94 67
+
+                            ;; Ladders
+                            7 26
+                            18 37
+                            28 48
+                            36 57
+                            40 79
+                            47 88
+                            51 92
+                            63 77
+                            74 95
+                            75 86 ;  This ladder's ambiguous, so
+                            76 86 ;  I'm going to do both
+                            }})
+
+(def captain-flinn-small-board-details
+  (assoc captain-flinn-board-details
+    :filename "CaptainFlinn-712x864.jpeg"
+   :size [712 864]
+   :middle-of-corner-squares (map (partial * 0.8) [81 265 801 988])))
+
+(def board cats-board-details)
+;;(def board national-archive-1901)
+;;(def board captain-flinn-small-board-details)

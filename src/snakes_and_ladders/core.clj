@@ -8,20 +8,21 @@
 
 ;; State
 
-;; Snakes and Ladders does not need much state:
-;; position for each players, and a turn counter.
-;; The state also includes the last die rolled, so the UI can render it
-;; You need a number of players to start the game, too
+;; :positions - a vector with the position for each player in order
+;; :animations - animations for rendering each player (see the drawing code)
+;; :turn-counter - number of turns since the game started
+;; :player-turn - the current player index (technically redundant, but handy)
+;; :current-roll - the die value generated
 (defn new-game
   ([] (new-game 2))
   ([number-of-players]
      (let [positions (vec (repeat number-of-players 1))
            state  {:positions positions
-                   :previous-positions positions
                    :move-times positions
                    :animations (vec (repeat number-of-players (fn [args] args)))
                    :turn-counter 0
-                   :player-turn 0}]
+                   :player-turn 0
+                   :current-roll 6}]
        state)))
 
 (def state-atom (atom (new-game 2)))
@@ -47,7 +48,6 @@
        current-roll))
 
 (defn next-state [state]
-  ;;  (println "millis " (quil/millis))
   (let[positions (state :positions)
        current-player-id (state :player-turn)
        turn-counter (state :turn-counter)
@@ -86,38 +86,40 @@
           (assoc state :positions new-positions
                  :move-times new-move-times
                  :animations new-animations))
-      (do ;;(println new-move-times)
-        {:positions new-positions
-         :previous-positions positions
-         :player-turn (rem (inc current-player-id) (count positions))
-         :turn-counter (inc turn-counter)
-         :move-times new-move-times
-         :animations new-animations
-         }))))
+      {:positions new-positions
+       :player-turn (rem (inc current-player-id) (count positions))
+       :turn-counter (inc turn-counter)
+       :move-times new-move-times
+       :animations new-animations
+       :current-roll current-roll})))
 
 (defn take-turn []
-  (swap! state-atom next-state)
-  (drawing/do-animation))
+  (swap! state-atom next-state))
 
 (defn draw []
   (drawing/draw @state-atom))
 
-;; Alternating control.  You can use these functions in defsketch.
+;; Alternating control means that you have to click the mouse and then press
+;; a key.
+;; Handy for playing with little ones.
+(def alternate-turns
+  ;true
+  nil
+  )
+
 (defn key-turn []
-  (println (@state-atom 1) (= 0 (@state-atom 1)))
-  (when (= 0 (@state-atom 1)) (take-turn)))
+  (when (= 0 (:player-turn @state-atom)) (take-turn)))
 
 (defn mouse-turn []
-  (println (@state-atom 1) (= 0 (@state-atom 1)))
-  (when-not (= 0 (@state-atom 1)) (take-turn)))
+  (when-not (= 0 (:player-turn @state-atom)) (take-turn)))
 
 (quil/defsketch snakes-and-ladders-sketch
   :title "Snakes and Ladders"
   :setup drawing/setup
   :draw  draw
   :size (:size boards/board)
-  :mouse-pressed take-turn
-  :key-pressed take-turn)
+  :mouse-pressed (if alternate-turns mouse-turn take-turn)
+  :key-pressed (if alternate-turns key-turn take-turn))
 
 (defn -main [& args]
   (println "args - " args))
