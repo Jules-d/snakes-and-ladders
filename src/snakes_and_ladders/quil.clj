@@ -148,7 +148,7 @@
 (defn draw-players-dynamic [game-state]
   (let [player-positions (:positions game-state)
         animations (:animations game-state)
-        time (quil.core/millis)]
+        time (System/currentTimeMillis)]
     (dorun (for [i (range (count player-positions))]
              (let [player i
                    position (player-positions i)
@@ -197,7 +197,7 @@
   (let [board boards/board
         player-positions (game-state :positions)
         animations (:animations game-state)
-        time (quil.core/millis)]
+        time (System/currentTimeMillis)]
 
     (dorun (for [i (range (count player-positions))]
              (do

@@ -56,7 +56,7 @@
        current-player-position (positions current-player-id)
        current-roll (roll-die)
        finish (board :finish)
-       time (quil/millis)
+       time (System/currentTimeMillis)
        old-screen-x-y (drawing/position-to-screen-x-y current-player-position)
        rolled-position (min finish (+ current-player-position current-roll))
        new-position (shifted-position rolled-position)
