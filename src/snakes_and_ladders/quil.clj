@@ -166,7 +166,7 @@
   (let [x 1
         y 1
         size 13
-        spot-size 4
+        spot-size 8
         middleh (+ x (* 2 size))
         middlev (+ y (* 2 size))
         left (+ x size)
@@ -175,6 +175,7 @@
         bottom (+ y (* 3 size))]
     (do
       (rect x y (+ x (* 4 size)) (+ y (* 4 size)))
+      (fill 0 0 0)
       (if (odd? roll)
         (ellipse middleh middlev spot-size spot-size))
       (if (> roll 1)
