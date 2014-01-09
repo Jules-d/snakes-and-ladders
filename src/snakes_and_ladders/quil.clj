@@ -5,8 +5,6 @@
 
 (def img (ref nil))
 
-(def animation-duration 750)
-
 (defn setup []
   (smooth)                          ;;Turn on anti-aliasing
   (frame-rate 60)                   ;;Set framerate to 1 FPS
@@ -61,8 +59,9 @@
   (let [x (mouse-x)  y (mouse-y)]
     (reset! (state :mouse-position) [x y])))
 
-;; Starting to work on animation
+;; TODO: Remove duplicate progress
 (defn progress [[start-time end-time] current-time]
+  "Returns a value clamped between 0 and 1 (inclusive) indicating current-time position between start-time and end-time."
   (let [duration (max 0 (- end-time start-time))
         progress (max 0 (- current-time start-time))]
     (if (or (= duration 0)
@@ -145,7 +144,7 @@
 (is (= (progress [0 100] 50) 1/2))
 (is (= (progress [0 100] 100) 1))
 
-(defn draw-players-dynamic [game-state]
+(defn draw-players [game-state]
   (let [player-positions (:positions game-state)
         animations (:animations game-state)
         time (System/currentTimeMillis)]
@@ -197,12 +196,6 @@
   (stroke-weight 2)
   (let [board boards/board
         player-positions (game-state :positions)
-        animations (:animations game-state)
         time (System/currentTimeMillis)]
-
-    (dorun (for [i (range (count player-positions))]
-             (do
-               (apply fill (player-token-color i))
-               (comment (draw-player i player-positions))))))
-  (draw-players-dynamic game-state)
-  (draw-die (:current-roll game-state)))
+  (draw-players game-state)
+  (draw-die (:current-roll game-state))))

@@ -2,6 +2,7 @@
   (:require [quil.core :as quil])
   (:require [snakes-and-ladders.quil :as drawing])
   (:require [snakes-and-ladders.boards :as boards])
+  (:use snakes-and-ladders.animation)
   (:use clojure.repl)
   (:gen-class)
   (:use clojure.test))
@@ -47,6 +48,20 @@
        (println "Rolled a" current-roll)
        current-roll))
 
+(defn generate-animation-from-positions [start-position positions]
+  ;; We using count in the speed factor gives us a uniform
+  ;; animation duration, and the 1.5 makes that duration 2/3rds
+  ;; of a second
+  (let [speed-factor (* (count positions) 1.5)]
+    (apply comp-l-to-r (concat
+                        [(start-now)
+                         (start-pos
+                          (drawing/position-to-screen-x-y start-position))]
+                        [(apply (partial with-speed speed-factor)
+                                (map move-to
+                                     (map drawing/position-to-screen-x-y
+                                          positions)))]))))
+
 (defn next-state [state]
   (let[positions (state :positions)
        current-player-id (state :player-turn)
@@ -54,33 +69,25 @@
        move-times (state :move-times)
        animations (state :animations)
        current-player-position (positions current-player-id)
-       current-roll (roll-die)
+       current-roll (roll-die) ; This generates the random number
        finish (board :finish)
        time (System/currentTimeMillis)
        old-screen-x-y (drawing/position-to-screen-x-y current-player-position)
        rolled-position (min finish (+ current-player-position current-roll))
        new-position (shifted-position rolled-position)
-       new-screen-x-y (drawing/position-to-screen-x-y new-position)
-       rolled-screen-x-y (drawing/position-to-screen-x-y rolled-position)
-       ;; "shifted" means that the player went up/down a ladder/snake
        is-shifted (not (= rolled-position new-position))
-       duration (if is-shifted 375 750)
-       new-animation (drawing/generate-composable-dynamic-position
-                      {:start-time time
-                       :end-time (+ time duration)
-                       :origin old-screen-x-y
-                       :destination rolled-screen-x-y})
-       shift-animation (drawing/generate-composable-dynamic-position
-                        {:start-time (+ time duration)
-                         :end-time (+ time (* 2 duration))
-                         :origin rolled-screen-x-y
-                         :destination new-screen-x-y})
-       final-animation (if is-shifted
-                         (comp new-animation shift-animation)
-                         new-animation)
+       intermediate-positions (concat (range
+                                       (inc current-player-position)
+                                       rolled-position)
+                                      ;; Always include the rolled position.
+                                      [rolled-position]
+                                      (if is-shifted [new-position] []))
+       new-animation (generate-animation-from-positions current-player-position intermediate-positions)
+
        new-positions (assoc positions current-player-id new-position)
        new-move-times (assoc move-times current-player-id time)
-       new-animations (assoc animations current-player-id final-animation)]
+       new-animations (assoc animations current-player-id new-animation)
+       ]
     (if (= new-position finish)
       (do (println "Winner player" (inc current-player-id) "!!!")
           (assoc state :positions new-positions
@@ -126,5 +133,7 @@
 
 ;; Control expressions
 (reset-game 2)
+;;(System/exit 0)
+
 
 ;; (take-turn)
